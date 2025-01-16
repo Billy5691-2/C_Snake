@@ -4,6 +4,7 @@
 
 #define cols 10
 #define rows 10
+#define foods 10
 
 char board[cols * rows];
 
@@ -23,6 +24,13 @@ struct Snake {
 };
 
 struct Snake snake;
+
+struct Food {
+    int consumed;
+    int x, y;
+};
+
+struct Food food[foods];
 
 void fill_board(){
     int x,y;
@@ -66,11 +74,14 @@ void draw_snake() {
 }
 
 void move_snake(int deltaX, int deltaY) {
-    //snakeX += deltaX;
-    //snakeY += deltaY;
+    int i;
 
-    snake.part[0].x = deltaX;
-    snake.part[0].y = deltaY;
+    snake.part[0].x += deltaX;
+    snake.part[0].y += deltaY;
+
+    for(i=snake.length-1; i>=0; i--){
+        snake.part[i] = snake.part[i-1];
+    }
 }
 
 void read_keyboard() {
@@ -86,17 +97,47 @@ void read_keyboard() {
 
 }
 
+void place_food() {
+    int i;
+
+    for(i=0; i<foods; i++) {
+        if(!food[i].consumed) {
+            board[food[i].y*cols + food[i].x] = '+'
+        }
+    }
+
+}
+
+void initialise_food() {
+    food[0].x = 1;
+    food[0].y = 1;
+}
+
+void initialise_snake() {
+    snake.length = 3;
+    snake.part[0].x = 5;
+    snake.part[0].y = 5;
+
+    snake.part[1].x = 5;
+    snake.part[1].y = 6;
+
+    snake.part[2].x = 5;
+    snake.part[2].y = 7;
+}
+
 int main(int argc, char **argv){
     //printf("Hello, World!\n");
 
-    snake.length = 1;
-    snake.part[0].x = 5;
-    snake.part[0].y = 5;
+    
+
+    initialise_food();
+    initialise_snake();
 
 
 
     while(!isGameOver) {
         fill_board();
+        place_food();
         print_board();
         draw_snake();
 
