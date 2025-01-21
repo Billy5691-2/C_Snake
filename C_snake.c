@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+#include <time.h>
 
 #define cols 10
 #define rows 10
@@ -84,6 +85,43 @@ void move_snake(int deltaX, int deltaY) {
     }
 }
 
+void game_rules() { 
+    int i;
+    int all_food_consumed = 1;
+    int tail_collision = 0;
+
+    for(i=0; i<foods; i++) {
+        if (!food[i].consumed && food[i].x == snake.part[0].x && food[i].y == snake.part[0].y) {
+            food[i].consumed = 1;
+            snake.length ++;
+        }
+    }
+
+    for(i=1; i<snake.length; i++) {
+        if(snake.part[0].x == snake.part[i].x && snake.part[0].y == snake.part[i].y) {
+            tail_collision = 1;
+        }
+    }
+
+    if (tail_collision || snake.part[0].x == 0 || snake.part[0].x == cols - 1 || snake.part[0].y == 0 || snake.part[0].y == rows - 1){
+        isGameOver = 1;
+        printf("Defeat");
+    }
+
+    for(i=0; i<foods; i++) {
+        if (!food[i].consumed){
+            all_food_consumed = 0;
+        }
+    }
+
+    if (all_food_consumed){
+        isGameOver = 1;
+        printf("Victory");
+    }
+        
+    
+}
+
 void read_keyboard() {
     int  ch = getch();
 
@@ -97,38 +135,38 @@ void read_keyboard() {
 
 }
 
-void place_food() {
+void draw_food() {
     int i;
 
     for(i=0; i<foods; i++) {
         if(!food[i].consumed) {
-            board[food[i].y*cols + food[i].x] = '+'
+            board[food[i].y*cols + food[i].x] = '+';
         }
     }
 
 }
 
 void initialise_food() {
-    food[0].x = 1;
-    food[0].y = 1;
+    int i;
+
+    for(i=0; i<foods; i++) {
+        food[i].x = 1 + rand() % (cols - 2);
+        food[i].y = 1 + rand() % (rows - 2);
+        food[i].consumed = 0;
+    }
+
 }
 
 void initialise_snake() {
-    snake.length = 3;
-    snake.part[0].x = 5;
-    snake.part[0].y = 5;
-
-    snake.part[1].x = 5;
-    snake.part[1].y = 6;
-
-    snake.part[2].x = 5;
-    snake.part[2].y = 7;
+    snake.length = 1;
+    snake.part[0].x = 1 + rand() % (cols - 2);
+    snake.part[0].y = 1 + rand() % (rows - 2);
 }
 
 int main(int argc, char **argv){
     //printf("Hello, World!\n");
 
-    
+    srand(time(0));
 
     initialise_food();
     initialise_snake();
@@ -139,9 +177,10 @@ int main(int argc, char **argv){
         fill_board();
         place_food();
         print_board();
+        eat_food();
         draw_snake();
 
-        read_keyboard();
+        if (!isGameOver) read_keyboard();
     }
 
     return 0;
